@@ -15,6 +15,17 @@ class SGD(Optimizer):
         self.lr = lr
 
     def zero_grad(self) -> None:
+        """Sets the derivative of the parameters to None. This is used to clear the gradients before computing new ones.
+
+        Args:
+        ----
+            None
+
+        Returns:
+        -------
+            None
+
+        """
         for p in self.parameters:
             if p.value is None:
                 continue
@@ -26,6 +37,17 @@ class SGD(Optimizer):
                     p.value.grad = None
 
     def step(self) -> None:
+        """Updates the parameters using the computed gradients. This is used to update the parameters of the model during the training process.
+
+        Args:
+        ----
+            None
+
+        Returns:
+        -------
+            None
+
+        """
         for p in self.parameters:
             if p.value is None:
                 continue
