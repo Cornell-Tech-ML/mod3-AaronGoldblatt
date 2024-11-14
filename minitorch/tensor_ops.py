@@ -2,12 +2,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Callable, Optional, Type
 
-import numpy as np
 from typing_extensions import Protocol
 
 from . import operators
 from .tensor_data import (
-    MAX_DIMS,
     broadcast_index,
     index_to_position,
     shape_broadcast,
@@ -16,7 +14,9 @@ from .tensor_data import (
 
 if TYPE_CHECKING:
     from .tensor import Tensor
-    from .tensor_data import Index, Shape, Storage, Strides
+    from .tensor_data import Shape, Storage, Strides
+
+import numpy as np
 
 
 class MapProto(Protocol):
@@ -41,7 +41,9 @@ class TensorOps:
     @staticmethod
     def reduce(
         fn: Callable[[float, float], float], start: float = 0.0
-    ) -> Callable[[Tensor, int], Tensor]: ...
+    ) -> Callable[[Tensor, int], Tensor]:
+        """Reduce placeholder"""
+        ...
 
     @staticmethod
     def matrix_multiply(a: Tensor, b: Tensor) -> Tensor:
@@ -57,10 +59,12 @@ class TensorBackend:
         that implements map, zip, and reduce higher-order functions.
 
         Args:
+        ----
             ops : tensor operations object see `tensor_ops.py`
 
 
         Returns:
+        -------
             A collection of tensor functions
 
         """
@@ -112,12 +116,14 @@ class SimpleOps(TensorOps):
                     out[i, j] = fn(a[i, 0])
 
         Args:
+        ----
             fn: function from float-to-float to apply.
             a (:class:`TensorData`): tensor to map over
             out (:class:`TensorData`): optional, tensor data to fill in,
                    should broadcast with `a`
 
         Returns:
+        -------
             new tensor data
 
         """
@@ -154,11 +160,13 @@ class SimpleOps(TensorOps):
 
 
         Args:
+        ----
             fn: function from two floats-to-float to apply
             a (:class:`TensorData`): tensor to zip over
             b (:class:`TensorData`): tensor to zip over
 
         Returns:
+        -------
             :class:`TensorData` : new tensor data
 
         """
@@ -193,11 +201,14 @@ class SimpleOps(TensorOps):
 
 
         Args:
+        ----
             fn: function from two floats-to-float to apply
             a (:class:`TensorData`): tensor to reduce over
             dim (int): int of dim to reduce
+            start (float): optional, start value for the reduction
 
         Returns:
+        -------
             :class:`TensorData` : new tensor
 
         """
@@ -246,9 +257,11 @@ def tensor_map(
       broadcast. (`in_shape` must be smaller than `out_shape`).
 
     Args:
+    ----
         fn: function from float-to-float to apply
 
     Returns:
+    -------
         Tensor map function.
 
     """
@@ -261,7 +274,37 @@ def tensor_map(
         in_shape: Shape,
         in_strides: Strides,
     ) -> None:
-        raise NotImplementedError("Need to include this file from past assignment.")
+        """Applies a function element-wise to input tensor, storing results in output tensor. Handles broadcasting if input and output shapes differ.
+
+        Args:
+        ----
+            out: Storage for the output tensor.
+            out_shape: Shape of the output tensor.
+            out_strides: Strides of the output tensor.
+            in_storage: Storage for the input tensor.
+            in_shape: Shape of the input tensor.
+            in_strides: Strides of the input tensor.
+
+        Returns:
+        -------
+            None. Results are stored in-place in the `out` storage.
+
+        """
+        # Task 2.3.
+        # Initialize the indices for the output and input tensors as lists of zeros the same length as the shape
+        out_index = np.array([0] * len(out_shape), dtype=np.int32)
+        in_index = np.array([0] * len(in_shape), dtype=np.int32)
+        for out_position in range(len(out)):
+            # Convert the output position to an index in the output tensor
+            to_index(out_position, out_shape, out_index)
+            # Broadcast the output index to the input shape to obtain the corresponding input tensor's index to the current output index
+            broadcast_index(out_index, out_shape, in_shape, in_index)
+            # Calculate the position in the 1D lower-level storage of the input tensor
+            in_storage_position = index_to_position(in_index, in_strides)
+            # Calculate the position in the 1D lower-level storage of the output tensor
+            out_storage_position = index_to_position(out_index, out_strides)
+            # Apply the function to the data at the input and output positions and store the result in the output tensor
+            out[out_storage_position] = fn(in_storage[in_storage_position])
 
     return _map
 
@@ -287,9 +330,11 @@ def tensor_zip(
       and `b_shape` broadcast to `out_shape`.
 
     Args:
+    ----
         fn: function mapping two floats to float to apply
 
     Returns:
+    -------
         Tensor zip function.
 
     """
@@ -305,7 +350,45 @@ def tensor_zip(
         b_shape: Shape,
         b_strides: Strides,
     ) -> None:
-        raise NotImplementedError("Need to include this file from past assignment.")
+        """Applies a binary function element-wise to two input tensors, storing results in a single output tensor. Handles broadcasting if input shapes differ from the output shape.
+
+        Args:
+        ----
+            out: Storage for the output tensor.
+            out_shape: Shape of the output tensor.
+            out_strides: Strides of the output tensor.
+            a_storage: Storage for the first input tensor.
+            a_shape: Shape of the first input tensor.
+            a_strides: Strides of the first input tensor.
+            b_storage: Storage for the second input tensor.
+            b_shape: Shape of the second input tensor.
+            b_strides: Strides of the second input tensor.
+
+        Returns:
+        -------
+            None. Results are stored in-place in the `out` storage.
+
+        """
+        # Task 2.3.
+        # Initialize the indices for the output and both input tensors as lists of zeros the same length as the shape
+        a_index = np.array([0] * len(a_shape), dtype=np.int32)
+        b_index = np.array([0] * len(b_shape), dtype=np.int32)
+        out_index = np.array([0] * len(out_shape), dtype=np.int32)
+        for out_position in range(len(out)):
+            # Convert the output position to an index in the output tensor
+            to_index(out_position, out_shape, out_index)
+            # Broadcast the output index to both of the input tensors' shapes to obtain each input tensor's index to the current output index
+            broadcast_index(out_index, out_shape, a_shape, a_index)
+            broadcast_index(out_index, out_shape, b_shape, b_index)
+            # Calculate the position in the 1D lower-level storage of each input tensor
+            a_storage_position = index_to_position(a_index, a_strides)
+            b_storage_position = index_to_position(b_index, b_strides)
+            # Calculate the position in the 1D lower-level storage of the output tensor
+            out_storage_position = index_to_position(out_index, out_strides)
+            # Apply the function to the data of both input tensors and store the result in the output tensor
+            out[out_storage_position] = fn(
+                a_storage[a_storage_position], b_storage[b_storage_position]
+            )
 
     return _zip
 
@@ -319,9 +402,11 @@ def tensor_reduce(
        except with `reduce_dim` turned to size `1`
 
     Args:
+    ----
         fn: reduction function mapping two floats to float
 
     Returns:
+    -------
         Tensor reduce function.
 
     """
@@ -335,7 +420,51 @@ def tensor_reduce(
         a_strides: Strides,
         reduce_dim: int,
     ) -> None:
-        raise NotImplementedError("Need to include this file from past assignment.")
+        """Applies a reduction function along a specified dimension of the input tensor.The output tensor will have the same shape as the input tensor, except the dimension being reduced will have size 1.
+
+        Args:
+        ----
+            out: Storage for the output tensor.
+            out_shape: Shape of the output tensor.
+            out_strides: Strides of the output tensor.
+            a_storage: Storage for the input tensor.
+            a_shape: Shape of the input tensor.
+            a_strides: Strides of the input tensor.
+            reduce_dim: The dimension along which to reduce.
+
+        Returns:
+        -------
+            None. Results are stored in-place in the `out` storage.
+
+        """
+        # Task 2.3.
+        # Initialize an index for the output tensor, with the same length as its shape
+        out_index = np.array([0] * len(out_shape), dtype=np.int32)
+        # Get the size of the reduction dimension
+        dim_size = a_shape[reduce_dim]
+        for out_position in range(len(out)):
+            # Convert the output position to an index in the output tensor
+            to_index(out_position, out_shape, out_index)
+            # Compute the corresponding storage position in the 1D representation of the output tensor
+            out_storage_position = index_to_position(out_index, out_strides)
+            # Initialize the reduction result with the first value in the reduction dimension
+            result = None
+            for reduce_position in range(dim_size):
+                # Create a copy of out_index to adjust for the input index
+                a_index = out_index.copy()
+                # Set the reduction dimension index
+                a_index[reduce_dim] = reduce_position
+                # Compute the corresponding storage position in the 1D representation of the input tensor
+                a_storage_position = index_to_position(a_index, a_strides)
+                # Apply the reduction function to accumulate values
+                if result is None:
+                    result = a_storage[
+                        a_storage_position
+                    ]  # Initialize with the first value
+                else:
+                    result = fn(result, a_storage[a_storage_position])
+                # Store the reduction result in the output tensor
+                out[out_storage_position] = result
 
     return _reduce
 
