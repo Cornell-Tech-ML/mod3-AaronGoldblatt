@@ -372,7 +372,10 @@ def tensor_reduce(
             # Only threads at even positions (relative to current stride) perform reduction, the number of which is halved each iteration
             if pos % (reduction_stride * 2) == 0:
                 # Combine values with strided pair using reduction function and store the result in cache[pos]
-                cache[pos] = fn(cache[pos], cache[pos + reduction_stride])
+                cache[pos] = fn(
+                    cache[pos],
+                    cache[pos + reduction_stride]
+                )
             # Double the stride for next iteration
             reduction_stride *= 2
         # Ensure all reductions are complete
@@ -420,8 +423,32 @@ def _mm_practice(out: Storage, a: Storage, b: Storage, size: int) -> None:
     """
     BLOCK_DIM = 32
     # TODO: Implement for Task 3.4.
-    raise NotImplementedError("Need to implement for Task 3.3")
-
+    # Allocate shared memory for matrices A and B
+    a_shared = cuda.shared.array((BLOCK_DIM, BLOCK_DIM), numba.float64)
+    b_shared = cuda.shared.array((BLOCK_DIM, BLOCK_DIM), numba.float64)
+    # Get the thread indices within the block
+    row = cuda.threadIdx.x
+    col = cuda.threadIdx.y
+    # Only process if thread indices are within matrix bounds, otherwise thread does nothing
+    if row < size and col < size:
+        # Copy data from global to shared memory, converting 2D indices to 1D index using row-major ordering
+        row_offset = row * size
+        # Calculate the position in the input matrices using the row offset and column index, which is the same in both matrices since they are both size N x N
+        position = row_offset + col
+        a_shared[row, col] = a[position]
+        b_shared[row, col] = b[position]
+        # Ensure all threads have finished copying to shared memory
+        cuda.syncthreads()
+        # Initialize accumulator for dot product
+        dot_product_accumulator = 0.0
+        # Compute dot product for this element
+        for inner_dimension in range(size):
+            dot_product_accumulator += (
+                a_shared[row, inner_dimension]
+                * b_shared[inner_dimension, col]
+            )
+        # Write result to global memory, converting 2D indices to 1D index for output
+        out[position] = dot_product_accumulator
 
 jit_mm_practice = jit(_mm_practice)
 
@@ -466,6 +493,8 @@ def _tensor_matrix_multiply(
     Returns:
         None : Fills in `out`
     """
+    assert a_shape[-1] == b_shape[-2], "Incompatible dimensions for matrix multiplication"
+    
     a_batch_stride = a_strides[0] if a_shape[0] > 1 else 0
     b_batch_stride = b_strides[0] if b_shape[0] > 1 else 0
     # Batch dimension - fixed
@@ -489,7 +518,63 @@ def _tensor_matrix_multiply(
     #    b) Copy into shared memory for b matrix
     #    c) Compute the dot produce for position c[i, j]
     # TODO: Implement for Task 3.4.
-    raise NotImplementedError("Need to implement for Task 3.4")
+    # Initialize accumulator for the dot product result, which allows us to accumulate the result across multiple threads and only write to global memory once we have the final result
+    dot_product_accumulator = 0.0
+    # Iterate over the shared dimension in blocks of size BLOCK_DIM (32), which allows us to handle the case where the matrix is larger than the block size
+    for block_start in range(0, a_shape[2], BLOCK_DIM):
+        # Load a block of matrix A into shared memory
+        # Calculate current position in the k dimension, or inner dimension that is shared between the two matrices and is being iterated over
+        k = block_start + pj
+        # Only copy if the thread indices are within the bounds of the input matrix a
+        if i < a_shape[1] and k < a_shape[2]: 
+            # Calculate the batch offset using the batch stride and the batch index
+            batch_offset = a_batch_stride * batch
+            # Calculate the row offset using the row stride and the row index
+            row_offset = a_strides[1] * i
+            # Calculate the column offset using the column stride and k, which represents the column of the input matrix a since the inner dimension in a is the column dimension, i.e. a is size M x K
+            col_offset = a_strides[2] * k
+            # Calculate global memory position using all the offsets
+            a_position = batch_offset + row_offset + col_offset
+            # Copy the value from the input matrix a to its shared memory, only one time per kernel
+            a_shared[pi, pj] = a_storage[a_position]
+        # Load a block of matrix B into shared memory
+        # Calculate current position in the k dimension, or inner dimension that is shared between the two matrices and is being iterated over
+        k = block_start + pi
+        # Only copy if the thread indices are within the bounds of the input matrix b
+        if j < b_shape[2] and k < b_shape[1]:
+            # Calculate the batch offset using the batch stride and the batch index
+            batch_offset = b_batch_stride * batch
+            # Calculate the row offset using the row stride and k, which represents the row of the input matrix b since the inner dimension in b is the row dimension, i.e. b is size K x N
+            row_offset = b_strides[1] * k
+            # Calculate the column offset using the column stride and the column index
+            col_offset = b_strides[2] * j
+            # Calculate global memory position using all the offsets
+            b_position = batch_offset + col_offset + row_offset
+            # Copy the value from the input matrix b to its shared memory, only one time per kernel
+            b_shared[pi, pj] = b_storage[b_position]
+        # Ensure all threads have finished loading data from input matrices into their respective shared memory for the current block
+        cuda.syncthreads()
+        # Compute partial dot product for this block of the output matrix
+        for inner_dim in range(BLOCK_DIM):
+            # Only compute if we haven't exceeded the actual matrix dimensions
+            if block_start + inner_dim < a_shape[2]:
+                # Multiply and accumulate corresponding elements
+                dot_product_accumulator += (
+                    a_shared[pi, inner_dim]
+                    * b_shared[inner_dim, pj]
+                )
+    # Write final result to global memory if indices are within bounds
+    if i < out_shape[1] and j < out_shape[2]:
+        # Calculate the batch offset using the batch stride and the batch index
+        batch_offset = out_strides[0] * batch
+        # Calculate the row offset using the row stride and the row index
+        row_offset = out_strides[1] * i
+        # Calculate the column offset using the column stride and the column index
+        col_offset = out_strides[2] * j
+        # Calculate the output position using the batch offset, row offset, and column offset
+        out_position = batch_offset + row_offset + col_offset
+        # Write the result to the output storage at the calculated position, only one time per kernel
+        out[out_position] = dot_product_accumulator
 
 
 tensor_matrix_multiply = jit(_tensor_matrix_multiply)
