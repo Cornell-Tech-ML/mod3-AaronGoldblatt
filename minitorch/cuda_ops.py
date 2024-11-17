@@ -422,7 +422,7 @@ def _mm_practice(out: Storage, a: Storage, b: Storage, size: int) -> None:
 
     """
     BLOCK_DIM = 32
-    # TODO: Implement for Task 3.4.
+    # Implemented for Task 3.4.
     # Allocate shared memory for matrices A and B
     a_shared = cuda.shared.array((BLOCK_DIM, BLOCK_DIM), numba.float64)
     b_shared = cuda.shared.array((BLOCK_DIM, BLOCK_DIM), numba.float64)
@@ -517,7 +517,7 @@ def _tensor_matrix_multiply(
     #    a) Copy into shared memory for a matrix.
     #    b) Copy into shared memory for b matrix
     #    c) Compute the dot produce for position c[i, j]
-    # TODO: Implement for Task 3.4.
+    # Implemented for Task 3.4.
     # Initialize accumulator for the dot product result, which allows us to accumulate the result across multiple threads and only write to global memory once we have the final result
     dot_product_accumulator = 0.0
     # Iterate over the shared dimension in blocks of size BLOCK_DIM (32), which allows us to handle the case where the matrix is larger than the block size
