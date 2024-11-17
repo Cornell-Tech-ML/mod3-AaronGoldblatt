@@ -67,7 +67,7 @@ def to_index(ordinal: int, shape: Shape, out_index: OutIndex) -> None:
         out_index : return index corresponding to position.
 
     """
-    # Initialize a temporary variable to hold the ordinal value for compatibility with numba's JIT compilation
+    # Initialize a temporary, explicitly int, variable to hold the ordinal value for compatibility with numba's JIT compilation
     temp_ordinal: int = int(ordinal)
     # Iterate over the shape in reverse order because the last dimension changes the fastest
     for i in range(len(shape) - 1, -1, -1):

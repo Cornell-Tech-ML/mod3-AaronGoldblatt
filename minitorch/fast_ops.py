@@ -168,7 +168,7 @@ def tensor_map(
         in_shape: Shape,
         in_strides: Strides,
     ) -> None:
-        # TODO: Implement for Task 3.1.
+        # Implemented for Task 3.1.
         # Check if input and output tensors are stride-aligned and have the same shape
         if list(in_shape) == list(out_shape) and list(in_strides) == list(out_strides):
             # Directly apply the function without index calculations
@@ -228,7 +228,7 @@ def tensor_zip(
         b_shape: Shape,
         b_strides: Strides,
     ) -> None:
-        # TODO: Implement for Task 3.1.
+        # Implemented for Task 3.1.
         # Check if `out`, `a`, and `b` are stride-aligned and have the same shape
         if list(a_strides) == list(b_strides) == list(out_strides) and list(a_shape) == list(b_shape) == list(out_shape):
             # Directly apply the function without index calculations
@@ -285,7 +285,7 @@ def tensor_reduce(
         a_strides: Strides,
         reduce_dim: int,
     ) -> None:
-        # TODO: Implement for Task 3.1.
+        # Implemented for Task 3.1.
         reduction_size = a_shape[reduce_dim]
         reduction_stride = a_strides[reduce_dim]
         # Iterate over the output tensor in parallel
@@ -352,11 +352,33 @@ def _tensor_matrix_multiply(
         None : Fills in `out`
 
     """
+    # Ensure the dimensions are compatible for matrix multiplication
+    assert a_shape[-1] == b_shape[-2], "Incompatible dimensions for matrix multiplication"
+    
     a_batch_stride = a_strides[0] if a_shape[0] > 1 else 0
     b_batch_stride = b_strides[0] if b_shape[0] > 1 else 0
 
-    # TODO: Implement for Task 3.2.
-    raise NotImplementedError("Need to implement for Task 3.2")
+    # Implemented for Task 3.2.
+    # Loop over the batch dimension, which corresponds to out_shape[0]
+    for batch_index in prange(out_shape[0]):
+        # Loop over the first dimension of tensor 'a'
+        for row_index in prange(out_shape[1]):
+            # Loop over the second dimension of tensor 'b'
+            for col_index in prange(out_shape[2]):
+                # Calculate the starting positions in a_storage and b_storage using batch and row/column indices
+                a_position = batch_index * a_batch_stride + row_index * a_strides[1]
+                b_position = batch_index * b_batch_stride + col_index * b_strides[2]
+                # Initialize accumulator for the dot product
+                dot_product_accumulator = 0.0
+                # Compute the dot product over the shared dimension (2nd of 'a' and 1st of 'b')
+                for shared_dim_index in range(a_shape[2]):
+                    dot_product_accumulator += a_storage[a_position] * b_storage[b_position]
+                    # Update positions in the shared dimension using strides
+                    a_position += a_strides[2]
+                    b_position += b_strides[1]
+                # Calculate the position in the output tensor and store the accumulated result
+                out_position = batch_index * out_strides[0] + row_index * out_strides[1] + col_index * out_strides[2]
+                out[out_position] = dot_product_accumulator
 
 
 tensor_matrix_multiply = njit(_tensor_matrix_multiply, parallel=True)
