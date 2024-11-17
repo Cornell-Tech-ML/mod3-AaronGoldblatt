@@ -36,7 +36,7 @@ The files that will be synced are:
 ```
 $ python project/parallel_check.py
 MAP
- 
+
 ================================================================================
  Parallel Accelerator Optimizing:  Function tensor_map.<locals>._map,
 C:\Users\User\Repositories\Cornell-
@@ -129,7 +129,7 @@ and reused inside the loop):
     - numpy.empty() is used for the allocation.
 None
 ZIP
- 
+
 ================================================================================
  Parallel Accelerator Optimizing:  Function tensor_zip.<locals>._zip,
 C:\Users\User\Repositories\Cornell-
@@ -138,7 +138,7 @@ Tech\CS-5781\mod3-AaronGoldblatt\minitorch\fast_ops.py (220)
 
 
 Parallel loop listing for  Function tensor_zip.<locals>._zip, C:\Users\User\Repositories\Cornell-Tech\CS-5781\mod3-AaronGoldblatt\minitorch\fast_ops.py (220)
------------------------------------------------------------------------------------------------------------------------------|loop #ID      
+-----------------------------------------------------------------------------------------------------------------------------|loop #ID
     def _zip(                                                                                                                |
         out: Storage,                                                                                                        |
         out_shape: Shape,                                                                                                    |
@@ -210,7 +210,7 @@ and reused inside the loop):
     - numpy.empty() is used for the allocation.
 None
 REDUCE
- 
+
 ================================================================================
  Parallel Accelerator Optimizing:  Function tensor_reduce.<locals>._reduce,
 C:\Users\User\Repositories\Cornell-
@@ -220,61 +220,61 @@ Tech\CS-5781\mod3-AaronGoldblatt\minitorch\fast_ops.py (279)
 
 Parallel loop listing for  Function tensor_reduce.<locals>._reduce, C:\Users\User\Repositories\Cornell-Tech\CS-5781\mod3-AaronGoldblatt\minitorch\fast_ops.py (279)
 -----------------------------------------------------------------------------------------------------------------------------------------------|loop #ID
-    def _reduce(                                                                                                                            
+    def _reduce(
    |
-        out: Storage,                                                                                                                       
+        out: Storage,
    |
-        out_shape: Shape,                                                                                                                   
+        out_shape: Shape,
    |
-        out_strides: Strides,                                                                                                               
+        out_strides: Strides,
    |
-        a_storage: Storage,                                                                                                                 
+        a_storage: Storage,
    |
-        a_shape: Shape,                                                                                                                     
+        a_shape: Shape,
    |
-        a_strides: Strides,                                                                                                                 
+        a_strides: Strides,
    |
-        reduce_dim: int,                                                                                                                    
+        reduce_dim: int,
    |
-    ) -> None:                                                                                                                              
+    ) -> None:
    |
-        # Implemented for Task 3.1.                                                                                                     
+        # Implemented for Task 3.1.
    |
-        reduction_size = a_shape[reduce_dim]                                                                                                
+        reduction_size = a_shape[reduce_dim]
    |
-        reduction_stride = a_strides[reduce_dim]                                                                                            
+        reduction_stride = a_strides[reduce_dim]
    |
-        # Iterate over the output tensor in parallel                                                                                        
+        # Iterate over the output tensor in parallel
    |
         for output_flat_index in prange(len(out)):---------------------------------------------------------------------------------------------| #6
-            output_multi_dim_index: Index = np.empty(MAX_DIMS, np.int32)                                                                    
+            output_multi_dim_index: Index = np.empty(MAX_DIMS, np.int32)
    |
-            # Convert the flat index to a multi-dimensional index for the output tensor                                                     
+            # Convert the flat index to a multi-dimensional index for the output tensor
    |
-            to_index(output_flat_index, out_shape, output_multi_dim_index)                                                                  
+            to_index(output_flat_index, out_shape, output_multi_dim_index)
    |
-            # Calculate the position in the output storage                                                                                  
+            # Calculate the position in the output storage
    |
-            output_storage_position = index_to_position(output_multi_dim_index, out_strides)                                                
+            output_storage_position = index_to_position(output_multi_dim_index, out_strides)
    |
-            # Calculate the starting position in the input storage                                                                          
+            # Calculate the starting position in the input storage
    |
-            input_storage_position = index_to_position(output_multi_dim_index, a_strides)                                                   
+            input_storage_position = index_to_position(output_multi_dim_index, a_strides)
    |
-            # Initialize the temporary result with the current output value                                                                 
+            # Initialize the temporary result with the current output value
    |
-            temp_result = out[output_storage_position]                                                                                      
+            temp_result = out[output_storage_position]
    |
             # Perform the reduction operation along the specified dimension, not in parallel because of dependencies in reduction operation    |
-            for _ in range(reduction_size):                                                                                                 
+            for _ in range(reduction_size):
    |
-                temp_result = fn(temp_result, a_storage[input_storage_position])                                                            
+                temp_result = fn(temp_result, a_storage[input_storage_position])
    |
-                input_storage_position += reduction_stride                                                                                  
+                input_storage_position += reduction_stride
    |
-            # Store the result back in the output storage                                                                                   
+            # Store the result back in the output storage
    |
-            out[output_storage_position] = temp_result                                                                                      
+            out[output_storage_position] = temp_result
    |
 --------------------------------- Fusing loops ---------------------------------
 Attempting fusion of parallel loops (combines loops with similar properties)...
@@ -299,7 +299,7 @@ and reused inside the loop):
     - numpy.empty() is used for the allocation.
 None
 MATRIX MULTIPLY
- 
+
 ================================================================================
  Parallel Accelerator Optimizing:  Function _tensor_matrix_multiply,
 C:\Users\User\Repositories\Cornell-

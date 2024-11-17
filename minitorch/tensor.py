@@ -665,6 +665,7 @@ class Tensor:
         Args:
         ----
             *order (int): The permutation order.
+            dim (Optional[int]): The dimension to permute. If None, permutes all dimensions.
 
         Returns:
         -------

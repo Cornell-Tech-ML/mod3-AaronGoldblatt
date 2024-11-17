@@ -47,7 +47,7 @@ def index_to_position(index: Index, strides: Strides) -> int:
 
     """
     # Calculate the position by summing the product of each index and its corresponding stride
-    # Changed to use a for loop to make it compatible with numba's JIT compilation 
+    # Changed to use a for loop to make it compatible with numba's JIT compilation
     position = 0
     for dim_index, stride in zip(index, strides):
         position += dim_index * stride

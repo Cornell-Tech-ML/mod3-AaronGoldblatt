@@ -29,11 +29,35 @@ FakeCUDAKernel = Any
 Fn = TypeVar("Fn")
 
 
-def device_jit(fn: Fn, **kwargs) -> Fn:
+def device_jit(fn: Fn, **kwargs: Any) -> Fn:
+    """Decorator to compile a function just-in-time (JIT) for CUDA with the argument device set to True. This creates device functions that can only be called from other CUDA functions, and not from the CPU/host code.
+
+    Args:
+    ----
+        fn: Function to compile.
+        **kwargs: Additional keyword arguments to pass to the `jit` decorator.
+
+    Returns:
+    -------
+        JIT compiled device function.
+
+    """
     return _jit(device=True, **kwargs)(fn)  # type: ignore
 
 
-def jit(fn, **kwargs) -> FakeCUDAKernel:
+def jit(fn: Fn, **kwargs: Any) -> FakeCUDAKernel:
+    """Decorator to compile a function just-in-time (JIT) for CUDA. This creates functions that can be called from the CPU/host code and that serve as the entry points for GPU computation. They cannot be called from other CUDA functions.
+
+    Args:
+    ----
+        fn: Function to compile.
+        **kwargs: Additional keyword arguments to pass to the `jit` decorator.
+
+    Returns:
+    -------
+        JIT compiled function.
+
+    """
     return _jit(**kwargs)(fn)  # type: ignore
 
 
@@ -67,6 +91,18 @@ class CudaOps(TensorOps):
 
     @staticmethod
     def zip(fn: Callable[[float, float], float]) -> Callable[[Tensor, Tensor], Tensor]:
+        """Creates a CUDA function that applies a binary operation element-wise between two tensors. This method takes a binary function (operating on two floats) and returns a new function that applies this operation to two tensors element-wise, with broadcasting support. The computation is performed on the GPU using CUDA.
+
+        Args:
+        ----
+            fn (Callable[[float, float], float]): Binary function to apply element-wise.
+                Should take two floats as input and return a float.
+
+        Returns:
+        -------
+            Callable[[Tensor, Tensor], Tensor]: A function that takes two tensors and returns a new tensor containing the element-wise application of fn. The output shape is determined by broadcasting rules.
+
+        """
         cufn: Callable[[float, float], float] = device_jit(fn)
         f = tensor_zip(cufn)
 
@@ -86,6 +122,19 @@ class CudaOps(TensorOps):
     def reduce(
         fn: Callable[[float, float], float], start: float = 0.0
     ) -> Callable[[Tensor, int], Tensor]:
+        """Creates a CUDA function that reduces a tensor along a specified dimension. This method takes a reduction function (operating on two floats) and returns a new function that applies this operation to a tensor along a specified dimension, with broadcasting support. The computation is performed on the GPU using CUDA.
+
+        Args:
+        ----
+            fn (Callable[[float, float], float]): Reduction function to apply.
+                Should take two floats as input and return a float.
+            start (float): Starting value for the reduction. Defaults to 0.0.
+
+        Returns:
+        -------
+            Callable[[Tensor, int], Tensor]: A function that takes a tensor and an integer dimension and returns a new tensor containing the reduction along the specified dimension.
+
+        """
         cufn: Callable[[float, float], float] = device_jit(fn)
         f = tensor_reduce(cufn)
 
@@ -106,6 +155,18 @@ class CudaOps(TensorOps):
 
     @staticmethod
     def matrix_multiply(a: Tensor, b: Tensor) -> Tensor:
+        """Creates a CUDA function that performs matrix multiplication between two tensors. This method takes two tensors and returns a new tensor containing the result of the matrix multiplication. The computation is performed on the GPU using CUDA.
+
+        Args:
+        ----
+            a (Tensor): First input tensor.
+            b (Tensor): Second input tensor.
+
+        Returns:
+        -------
+            Tensor: A new tensor containing the result of the matrix multiplication.
+
+        """
         # Make these always be a 3 dimensional multiply
         both_2d = 0
         if len(a.shape) == 2:
@@ -228,7 +289,7 @@ def tensor_zip(
         i = cuda.blockIdx.x * cuda.blockDim.x + cuda.threadIdx.x
 
         # Implemented for Task 3.3.
-                # Check if the current thread is within the bounds of the output tensor.
+        # Check if the current thread is within the bounds of the output tensor.
         if i < out_size:
             # Convert the linear index 'i' to a multi-dimensional index 'out_index' based on 'out_shape'.
             to_index(i, out_shape, out_index)
@@ -247,7 +308,7 @@ def tensor_zip(
 
 
 def _sum_practice(out: Storage, a: Storage, size: int) -> None:
-    """This is a practice sum kernel to prepare for reduce.
+    r"""A practice sum kernel to prepare for reduce.
 
     Given an array of length $n$ and out of size $n // \text{blockDIM}$
     it should sum up each blockDim values into an out cell.
@@ -274,7 +335,7 @@ def _sum_practice(out: Storage, a: Storage, size: int) -> None:
     pos = cuda.threadIdx.x
 
     # Implemented for Task 3.3.
-        # Initialize shared memory with the input values
+    # Initialize shared memory with the input values
     if i < size:
         # Load the input value into shared memory at the current thread's position
         cache[pos] = a[i]
@@ -304,6 +365,19 @@ jit_sum_practice = cuda.jit()(_sum_practice)
 
 
 def sum_practice(a: Tensor) -> TensorData:
+    """Practice CUDA reduction by summing blocks of a 1D tensor. This function demonstrates parallel reduction on GPU by dividing the input tensor into blocks of size THREADS_PER_BLOCK (32) and summing each block. The result will contain partial sums, with each element representing the sum of up to 32 consecutive elements from the input tensor. Note that this is not a complete reduction of the tensor, but rather a practice function intended for learning CUDA reduction patterns.
+
+    Args:
+    ----
+        a (Tensor): Input 1D tensor to be reduced.
+
+    Returns:
+    -------
+        TensorData: A TensorData object containing partial sums.
+            The output size is fixed at 2 elements, where each element
+            contains the sum of a block of input values.
+
+    """
     (size,) = a.shape
     threadsperblock = THREADS_PER_BLOCK
     blockspergrid = (size // THREADS_PER_BLOCK) + 1
@@ -372,10 +446,7 @@ def tensor_reduce(
             # Only threads at even positions (relative to current stride) perform reduction, the number of which is halved each iteration
             if pos % (reduction_stride * 2) == 0:
                 # Combine values with strided pair using reduction function and store the result in cache[pos]
-                cache[pos] = fn(
-                    cache[pos],
-                    cache[pos + reduction_stride]
-                )
+                cache[pos] = fn(cache[pos], cache[pos + reduction_stride])
             # Double the stride for next iteration
             reduction_stride *= 2
         # Ensure all reductions are complete
@@ -391,7 +462,7 @@ def tensor_reduce(
 
 
 def _mm_practice(out: Storage, a: Storage, b: Storage, size: int) -> None:
-    """This is a practice square MM kernel to prepare for matmul.
+    """A practice square MM kernel to prepare for matmul.
 
     Given a storage `out` and two storage `a` and `b`. Where we know
     both are shape [size, size] with strides [size, 1].
@@ -444,16 +515,28 @@ def _mm_practice(out: Storage, a: Storage, b: Storage, size: int) -> None:
         # Compute dot product for this element
         for inner_dimension in range(size):
             dot_product_accumulator += (
-                a_shared[row, inner_dimension]
-                * b_shared[inner_dimension, col]
+                a_shared[row, inner_dimension] * b_shared[inner_dimension, col]
             )
         # Write result to global memory, converting 2D indices to 1D index for output
         out[position] = dot_product_accumulator
+
 
 jit_mm_practice = jit(_mm_practice)
 
 
 def mm_practice(a: Tensor, b: Tensor) -> TensorData:
+    """Practice CUDA matrix multiplication on small square matrices. This function demonstrates basic matrix multiplication on GPU using shared memory. It is designed for learning purposes and only works with same-size, square matrices where the size is less than THREADS_PER_BLOCK (32).
+
+    Args:
+    ----
+        a (Tensor): First input tensor of shape (size, size)
+        b (Tensor): Second input tensor of shape (size, size)
+
+    Returns:
+    -------
+        TensorData: Result of matrix multiplication with shape (size, size)
+
+    """
     (size, _) = a.shape
     threadsperblock = (THREADS_PER_BLOCK, THREADS_PER_BLOCK)
     blockspergrid = 1
@@ -493,8 +576,10 @@ def _tensor_matrix_multiply(
     Returns:
         None : Fills in `out`
     """
-    assert a_shape[-1] == b_shape[-2], "Incompatible dimensions for matrix multiplication"
-    
+    assert (
+        a_shape[-1] == b_shape[-2]
+    ), "Incompatible dimensions for matrix multiplication"
+
     a_batch_stride = a_strides[0] if a_shape[0] > 1 else 0
     b_batch_stride = b_strides[0] if b_shape[0] > 1 else 0
     # Batch dimension - fixed
@@ -526,7 +611,7 @@ def _tensor_matrix_multiply(
         # Calculate current position in the k dimension, or inner dimension that is shared between the two matrices and is being iterated over
         k = block_start + pj
         # Only copy if the thread indices are within the bounds of the input matrix a
-        if i < a_shape[1] and k < a_shape[2]: 
+        if i < a_shape[1] and k < a_shape[2]:
             # Calculate the batch offset using the batch stride and the batch index
             batch_offset = a_batch_stride * batch
             # Calculate the row offset using the row stride and the row index
@@ -560,8 +645,7 @@ def _tensor_matrix_multiply(
             if block_start + inner_dim < a_shape[2]:
                 # Multiply and accumulate corresponding elements
                 dot_product_accumulator += (
-                    a_shared[pi, inner_dim]
-                    * b_shared[inner_dim, pj]
+                    a_shared[pi, inner_dim] * b_shared[inner_dim, pj]
                 )
     # Write final result to global memory if indices are within bounds
     if i < out_shape[1] and j < out_shape[2]:

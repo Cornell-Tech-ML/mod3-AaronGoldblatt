@@ -30,6 +30,18 @@ Fn = TypeVar("Fn")
 
 
 def njit(fn: Fn, **kwargs: Any) -> Fn:
+    """Decorator to compile a function with Numba's JIT compiler with 'inline' always enabled, which ensures that all JIT compiled functions are inlined for better performance.
+
+    Args:
+    ----
+        fn (Fn): Function to be JIT compiled
+        **kwargs: Additional keyword arguments to pass to Numba's JIT compiler
+
+    Returns:
+    -------
+        Fn: JIT compiled version of the input function with inlining enabled
+
+    """
     return _njit(inline="always", **kwargs)(fn)  # type: ignore
 
 
@@ -230,7 +242,9 @@ def tensor_zip(
     ) -> None:
         # Implemented for Task 3.1.
         # Check if `out`, `a`, and `b` are stride-aligned and have the same shape
-        if list(a_strides) == list(b_strides) == list(out_strides) and list(a_shape) == list(b_shape) == list(out_shape):
+        if list(a_strides) == list(b_strides) == list(out_strides) and list(
+            a_shape
+        ) == list(b_shape) == list(out_shape):
             # Directly apply the function without index calculations
             for flat_index in prange(len(out)):
                 out[flat_index] = fn(a_storage[flat_index], b_storage[flat_index])
@@ -250,7 +264,9 @@ def tensor_zip(
                 broadcast_index(out_multi_index, out_shape, b_shape, b_multi_index)
                 b_storage_position = index_to_position(b_multi_index, b_strides)
                 # Apply the function to the input values and store the result in the output storage
-                out[out_storage_position] = fn(a_storage[a_storage_position], b_storage[b_storage_position])
+                out[out_storage_position] = fn(
+                    a_storage[a_storage_position], b_storage[b_storage_position]
+                )
 
     return njit(_zip, parallel=True)  # type: ignore
 
@@ -294,9 +310,13 @@ def tensor_reduce(
             # Convert the flat index to a multi-dimensional index for the output tensor
             to_index(output_flat_index, out_shape, output_multi_dim_index)
             # Calculate the position in the output storage
-            output_storage_position = index_to_position(output_multi_dim_index, out_strides)
+            output_storage_position = index_to_position(
+                output_multi_dim_index, out_strides
+            )
             # Calculate the starting position in the input storage
-            input_storage_position = index_to_position(output_multi_dim_index, a_strides)
+            input_storage_position = index_to_position(
+                output_multi_dim_index, a_strides
+            )
             # Initialize the temporary result with the current output value
             temp_result = out[output_storage_position]
             # Perform the reduction operation along the specified dimension, not in parallel because of dependencies in reduction operation
@@ -353,8 +373,10 @@ def _tensor_matrix_multiply(
 
     """
     # Ensure the dimensions are compatible for matrix multiplication
-    assert a_shape[-1] == b_shape[-2], "Incompatible dimensions for matrix multiplication"
-    
+    assert (
+        a_shape[-1] == b_shape[-2]
+    ), "Incompatible dimensions for matrix multiplication"
+
     a_batch_stride = a_strides[0] if a_shape[0] > 1 else 0
     b_batch_stride = b_strides[0] if b_shape[0] > 1 else 0
 
@@ -372,12 +394,18 @@ def _tensor_matrix_multiply(
                 dot_product_accumulator = 0.0
                 # Compute the dot product over the shared dimension (2nd of 'a' and 1st of 'b')
                 for shared_dim_index in range(a_shape[2]):
-                    dot_product_accumulator += a_storage[a_position] * b_storage[b_position]
+                    dot_product_accumulator += (
+                        a_storage[a_position] * b_storage[b_position]
+                    )
                     # Update positions in the shared dimension using strides
                     a_position += a_strides[2]
                     b_position += b_strides[1]
                 # Calculate the position in the output tensor and store the accumulated result
-                out_position = batch_index * out_strides[0] + row_index * out_strides[1] + col_index * out_strides[2]
+                out_position = (
+                    batch_index * out_strides[0]
+                    + row_index * out_strides[1]
+                    + col_index * out_strides[2]
+                )
                 out[out_position] = dot_product_accumulator
 
 
