@@ -348,36 +348,41 @@ def tensor_reduce(
         pos = cuda.threadIdx.x
 
         # TODO: Implement for Task 3.3.
-        # Local array for input index used to calculate the position in the input storage
-        in_index = cuda.local.array(MAX_DIMS, numba.int32)
-        # Initialize the cache with the reduction start value
-        cache[pos] = reduce_value
-        # Calculate the starting index for the reduction
-        to_index(out_pos, out_shape, out_index)  # Convert block index to multi-dimensional index
-        in_index[:] = out_index[:]  # Copy output index to input index
-        in_index[reduce_dim] = pos  # Set the reduction dimension index
-        # Calculate the position in the input storage
-        in_pos = index_to_position(in_index, a_strides)
-        # Load the input value into shared memory if within bounds
-        if pos < a_shape[reduce_dim]:
-            cache[pos] = a_storage[in_pos]
-        # Synchronize threads within the block to ensure all threads have loaded their data
-        cuda.syncthreads()
-        # Perform reduction within the block using a parallel reduction algorithm
-        stride = 1
-        while stride < BLOCK_DIM:
-            # Check if the current thread should perform an addition at this stride level
-            if pos % (2 * stride) == 0 and pos + stride < BLOCK_DIM:
-                # Combine the value from the neighboring thread at the current stride distance
-                cache[pos] = fn(cache[pos], cache[pos + stride])
-            # Double the stride for the next iteration
-            stride *= 2
-            # Synchronize threads to ensure all additions at this stride level are complete
-            cuda.syncthreads()
-        # Write the result of the block's reduction to the output array
+        # Convert the block index to a multi-dimensional index for output
+        to_index(out_pos, out_shape, out_index)
+        # Initialize reduction parameters
+        reduction_stride = 1
+        # Size of dimension being reduced
+        dimension_size = a_shape[reduce_dim]
+        # Load data into shared memory cache if the thread index is within the dimension size
+        if pos < dimension_size:
+            # Set the index for the reduction dimension
+            out_index[reduce_dim] = pos
+            # Calculate position in input storage
+            input_position = index_to_position(out_index, a_strides)
+            # Load value into shared memory
+            cache[pos] = a_storage[input_position]
+        else:
+            # For threads beyond dimension size, initialize with reduction identity value
+            cache[pos] = reduce_value
+        # Parallel reduction in shared memory
+        while reduction_stride < BLOCK_DIM:
+            # Synchronize all threads before next reduction step
+            numba.cuda.syncthreads()
+            # Only threads at even positions (relative to current stride) perform reduction, the number of which is halved each iteration
+            if pos % (reduction_stride * 2) == 0:
+                # Combine values with strided pair using reduction function
+                cache[pos] = fn(cache[pos], cache[pos + reduction_stride])
+            # Double the stride for next iteration
+            reduction_stride *= 2
+        # Ensure all reductions are complete
+        numba.cuda.syncthreads()
+        # Thread 0 writes final result to global memory
         if pos == 0:
-            # Only the first thread in the block writes the result to the global memory
-            out[out_pos] = cache[0]
+            # Calculate position in output storage
+            output_position = index_to_position(out_index, out_strides)
+            # Write the result, which is at cache[0], to the output storage
+            out[output_position] = cache[0]
 
     return jit(_reduce)  # type: ignore
 
