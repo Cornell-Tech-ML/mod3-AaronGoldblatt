@@ -173,7 +173,7 @@ def tensor_map(
         out_index = cuda.local.array(MAX_DIMS, numba.int32)
         in_index = cuda.local.array(MAX_DIMS, numba.int32)
         i = cuda.blockIdx.x * cuda.blockDim.x + cuda.threadIdx.x
-        # TODO: Implement for Task 3.3.
+        # Implemented for Task 3.3.
         # Check if the current thread is within the bounds of the output tensor.
         if i < out_size:
             # Convert the linear index 'i' to a multi-dimensional index 'out_index' based on 'out_shape'.
@@ -227,7 +227,7 @@ def tensor_zip(
         b_index = cuda.local.array(MAX_DIMS, numba.int32)
         i = cuda.blockIdx.x * cuda.blockDim.x + cuda.threadIdx.x
 
-        # TODO: Implement for Task 3.3.
+        # Implemented for Task 3.3.
                 # Check if the current thread is within the bounds of the output tensor.
         if i < out_size:
             # Convert the linear index 'i' to a multi-dimensional index 'out_index' based on 'out_shape'.
@@ -273,7 +273,7 @@ def _sum_practice(out: Storage, a: Storage, size: int) -> None:
     i = cuda.blockIdx.x * cuda.blockDim.x + cuda.threadIdx.x
     pos = cuda.threadIdx.x
 
-    # TODO: Implement for Task 3.3.
+    # Implemented for Task 3.3.
         # Initialize shared memory with the input values
     if i < size:
         # Load the input value into shared memory at the current thread's position
@@ -347,7 +347,7 @@ def tensor_reduce(
         out_pos = cuda.blockIdx.x
         pos = cuda.threadIdx.x
 
-        # TODO: Implement for Task 3.3.
+        # Implemented for Task 3.3.
         # Convert the block index to a multi-dimensional index for output
         to_index(out_pos, out_shape, out_index)
         # Initialize reduction parameters
@@ -371,7 +371,7 @@ def tensor_reduce(
             numba.cuda.syncthreads()
             # Only threads at even positions (relative to current stride) perform reduction, the number of which is halved each iteration
             if pos % (reduction_stride * 2) == 0:
-                # Combine values with strided pair using reduction function
+                # Combine values with strided pair using reduction function and store the result in cache[pos]
                 cache[pos] = fn(cache[pos], cache[pos + reduction_stride])
             # Double the stride for next iteration
             reduction_stride *= 2
@@ -419,7 +419,7 @@ def _mm_practice(out: Storage, a: Storage, b: Storage, size: int) -> None:
 
     """
     BLOCK_DIM = 32
-    # TODO: Implement for Task 3.3.
+    # TODO: Implement for Task 3.4.
     raise NotImplementedError("Need to implement for Task 3.3")
 
 
