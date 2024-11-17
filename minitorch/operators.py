@@ -163,7 +163,8 @@ def relu(x: float) -> float:
         The float value of the ReLU of `x`, which is the maximum of 0 and `x`.
 
     """
-    return max(0.0, x)
+    # Used a ternary operator to make it compatible with numba's JIT compilation
+    return 0.0 if x < 0 else x
 
 
 def log(x: float) -> float:

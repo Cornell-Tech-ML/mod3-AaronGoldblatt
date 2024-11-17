@@ -47,7 +47,11 @@ def index_to_position(index: Index, strides: Strides) -> int:
 
     """
     # Calculate the position by summing the product of each index and its corresponding stride
-    return sum(index * stride for index, stride in zip(index, strides))
+    # Changed to use a for loop to make it compatible with numba's JIT compilation 
+    position = 0
+    for dim_index, stride in zip(index, strides):
+        position += dim_index * stride
+    return position
 
 
 def to_index(ordinal: int, shape: Shape, out_index: OutIndex) -> None:
@@ -63,12 +67,15 @@ def to_index(ordinal: int, shape: Shape, out_index: OutIndex) -> None:
         out_index : return index corresponding to position.
 
     """
+    # Initialize a temporary variable to hold the ordinal value for compatibility with numba's JIT compilation
+    temp_ordinal: int = int(ordinal)
     # Iterate over the shape in reverse order because the last dimension changes the fastest
     for i in range(len(shape) - 1, -1, -1):
+        shape_i: int = shape[i]
         # Calculate the index for the current dimension
-        out_index[i] = ordinal % shape[i]
+        out_index[i] = int(temp_ordinal % shape_i)
         # Update the ordinal for the next dimension
-        ordinal = ordinal // shape[i]
+        temp_ordinal = temp_ordinal // shape_i
 
 
 def broadcast_index(
