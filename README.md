@@ -436,3 +436,8 @@ Allocation hoisting:
 No allocation hoisting found
 None
 ```
+
+## Task 3.4
+
+
+## Task 3.5
