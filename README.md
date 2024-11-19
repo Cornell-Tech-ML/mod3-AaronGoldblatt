@@ -440,9 +440,11 @@ None
 ## Task 3.4
 ### Task 3.4.1: Comparison Graph for Matrix Multiplication Using Fast (CPU) and GPU
 **Regular Graph**:
+
 <img src="images\task3_4\Performance Comparison Regular Graph.png" width="50%">
 
 **Log-Log Graph**:
+
 <img src="images\task3_4\Performance Comparison Log-Log Graph.png" width="50%">
 
 ### Task 3.4.2: Comparison Graph Generation Script Log
@@ -557,7 +559,7 @@ Epoch: 490/500, loss: 0.0534413205857732, correct: 50
 
 #### Task 3.5.1.2: GPU - Simple Dataset
 50 data points
-Time Per Epoch: Xs
+Time Per Epoch: 1.69239s ≈ 1.692s
 
 **Hyperparameters**:
 - learning rate: 0.05
@@ -772,7 +774,7 @@ Epoch: 490/500, loss: 0.1802670566387022, correct: 50
 
 #### Task 3.5.2.2: GPU - Split Dataset
 50 data points
-Time Per Epoch: Xs
+Time Per Epoch: 1.676186s ≈ 1.676s
 
 **Hyperparameters**:
 - learning rate: 0.05
@@ -987,7 +989,7 @@ Epoch: 490/500, loss: 1.2997807902602128, correct: 50
 
 #### Task 3.5.3.2: GPU - XOR Dataset
 50 data points
-Time Per Epoch: Xs
+Time Per Epoch: 1.6898s ≈ 1.690s
 
 **Hyperparameters**:
 - learning rate: 0.05
@@ -1203,7 +1205,7 @@ Epoch: 490/500, loss: 0.020382489791282758, correct: 50
 
 #### Task 3.5.4.2: GPU - Bigger Model Simple Dataset
 50 data points
-Time Per Epoch: Xs
+Time Per Epoch: 1.788074s ≈ 1.788s
 
 **Hyperparameters**:
 - learning rate: 0.05
