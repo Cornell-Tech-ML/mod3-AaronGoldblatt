@@ -74,10 +74,10 @@ if __name__ == "__main__":
     plt.title('Matrix Multiplication Performance Comparison')
     plt.legend()
     plt.grid(True)
-    
+
     if SAVE_PLOT:
         os.makedirs('images/task3_4', exist_ok=True)
         plt.savefig('images/task3_4/matmul_comparison.png')
-    
+
     plt.show()
     plt.close()
