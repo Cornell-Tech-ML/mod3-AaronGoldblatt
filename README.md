@@ -441,11 +441,11 @@ None
 ### Task 3.4.1: Comparison Graph for Matrix Multiplication Using Fast (CPU) and GPU
 **Regular Graph**:
 
-<img src="images\task3_4\Performance Comparison Regular Graph.png" width="50%">
+<img src="images\task3_4\Performance Comparison Regular Graph.png" width="75%">
 
 **Log-Log Graph**:
 
-<img src="images\task3_4\Performance Comparison Log-Log Graph.png" width="50%">
+<img src="images\task3_4\Performance Comparison Log-Log Graph.png" width="75%">
 
 ### Task 3.4.2: Comparison Graph Generation Script Log
 ```
@@ -497,10 +497,10 @@ Time Per Epoch: 0.119s
 - max epochs: 500
 - hidden layers: 100
 
-<img src="images\task3_5\1. simple\cpu\1. Dataset.png" width="50%">
-<img src="images\task3_5\1. simple\cpu\2. Hidden Layer and Initial Setting.png" width="50%">
-<img src="images\task3_5\1. simple\cpu\3. Hyperparameters and Results.png" width="50%">
-<img src="images\task3_5\1. simple\cpu\4. Loss Graph and Table.png" width="50%">
+<img src="images\task3_5\1. simple\cpu\1. Dataset.png" width="75%">
+<img src="images\task3_5\1. simple\cpu\2. Hidden Layer and Initial Setting.png" width="75%">
+<img src="images\task3_5\1. simple\cpu\3. Hyperparameters and Results.png" width="75%">
+<img src="images\task3_5\1. simple\cpu\4. Loss Graph and Table.png" width="75%">
 
 **Simple CPU Training Log**:
 ```
@@ -712,10 +712,10 @@ Time Per Epoch: 0.105s
 - max epochs: 500
 - hidden layers: 100
 
-<img src="images\task3_5\2. split\cpu\1. Dataset.png" width="50%">
-<img src="images\task3_5\2. split\cpu\2. Hidden Layer and Initial Setting.png" width="50%">
-<img src="images\task3_5\2. split\cpu\3. Hyperparameters and Results.png" width="50%">
-<img src="images\task3_5\2. split\cpu\4. Loss Graph and Table.png" width="50%">
+<img src="images\task3_5\2. split\cpu\1. Dataset.png" width="75%">
+<img src="images\task3_5\2. split\cpu\2. Hidden Layer and Initial Setting.png" width="75%">
+<img src="images\task3_5\2. split\cpu\3. Hyperparameters and Results.png" width="75%">
+<img src="images\task3_5\2. split\cpu\4. Loss Graph and Table.png" width="75%">
 
 **Split CPU Training Log**:
 ```
@@ -927,9 +927,9 @@ Time Per Epoch: 0.075s
 - max epochs: 500
 - hidden layers: 100
 
-<img src="images\task3_5\3. xor\cpu\1. Dataset.png" width="50%">
-<img src="images\task3_5\3. xor\cpu\2. Hidden Layer and Initial Setting.png" width="50%">
-<img src="images\task3_5\3. xor\cpu\3. Hyperparameters and Results.png" width="50%">
+<img src="images\task3_5\3. xor\cpu\1. Dataset.png" width="75%">
+<img src="images\task3_5\3. xor\cpu\2. Hidden Layer and Initial Setting.png" width="75%">
+<img src="images\task3_5\3. xor\cpu\3. Hyperparameters and Results.png" width="75%">
 <img src="images\task3_5\3. xor\cpu\4. Loss Graph and Table.png" width="50%">
 
 **XOR CPU Training Log**:
@@ -994,12 +994,7 @@ Time Per Epoch: 1.6898s ≈ 1.690s
 **Hyperparameters**:
 - learning rate: 0.05
 - max epochs: 500
-- hidden layers: 200
-
-<img src="images\task3_5\4. bigger model - simple\cpu\1. Dataset.png" width="50%">
-<img src="images\task3_5\4. bigger model - simple\cpu\2. Hidden Layer and Initial Setting.png" width="50%">
-<img src="images\task3_5\4. bigger model - simple\cpu\3. Hyperparameters and Results.png" width="50%">
-<img src="images\task3_5\4. bigger model - simple\cpu\4. Loss Graph and Table.png" width="50%">
+- hidden layers: 100
 
 **XOR GPU Training Log**:
 ```
@@ -1146,6 +1141,11 @@ Time Per Epoch: 0.167s
 - learning rate: 0.05
 - max epochs: 500
 - hidden layers: 200
+
+<img src="images\task3_5\4. bigger model - simple\cpu\1. Dataset.png" width="75%">
+<img src="images\task3_5\4. bigger model - simple\cpu\2. Hidden Layer and Initial Setting.png" width="75%">
+<img src="images\task3_5\4. bigger model - simple\cpu\3. Hyperparameters and Results.png" width="75%">
+<img src="images\task3_5\4. bigger model - simple\cpu\4. Loss Graph and Table.png" width="75%">
 
 **Bigger Model Simple CPU Training Log**:
 ```
