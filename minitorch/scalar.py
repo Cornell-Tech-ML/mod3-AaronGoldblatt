@@ -6,6 +6,7 @@ from typing import Any, Iterable, Optional, Sequence, Tuple, Type, Union
 import numpy as np
 
 from dataclasses import field
+
 from .autodiff import Context, Variable, backpropagate, central_difference
 from .scalar_functions import (
     EQ,
@@ -112,21 +113,59 @@ class Scalar:
         return self.history is not None and self.history.last_fn is None
 
     def is_constant(self) -> bool:
+        """Check if this variable is a constant, i.e. it has no `history`.
+
+        Args:
+        ----
+            None: The function does not take any arguments.
+
+        Returns:
+        -------
+            True if the variable is a constant, False otherwise.
+
+        """
         return self.history is None
 
     @property
     def parents(self) -> Iterable[Variable]:
-        """Get the variables used to create this one."""
+        """Get the parent variables of this variable. The parent variables are the variables that were used to create this variable in this variable's `history`.
+
+        Args:
+        ----
+            None: The function does not take any arguments.
+
+        Returns:
+        -------
+            The parent variables of this variable.
+
+        """
         assert self.history is not None
         return self.history.inputs
 
     def chain_rule(self, d_output: Any) -> Iterable[Tuple[Variable, Any]]:
+        """Apply the chain rule to propagate gradients from the output to each parent variable. For each parent of the current variable, compute the derivative of the output with respect to that parent variable by applying the chain rule. The function returns a list of (parent variable, gradient) pairs, excluding any constant parent variables.
+
+        Args:
+        ----
+            d_output: The upstream gradient, representing the derivative of the output with respect to this variable (the current variable in the computational graph).
+
+        Returns:
+        -------
+            A list of tuples, where each tuple contains a parent variable and the derivative of the output with respect to that variable, with constant variables removed.
+
+        """
         h = self.history
         assert h is not None
         assert h.last_fn is not None
         assert h.ctx is not None
 
-        raise NotImplementedError("Need to include this file from past assignment.")
+        last_fn_d = h.last_fn._backward(h.ctx, d_output)
+        parents_d = [
+            (parent, d)
+            for parent, d in zip(self.parents, last_fn_d)
+            if not parent.is_constant()
+        ]
+        return parents_d
 
     def backward(self, d_output: Optional[float] = None) -> None:
         """Calls autodiff to fill in the derivatives for the history of this object.
@@ -141,17 +180,93 @@ class Scalar:
             d_output = 1.0
         backpropagate(self, d_output)
 
-    raise NotImplementedError("Need to include this file from past assignment.")
+    def __lt__(self, b: ScalarLike) -> Scalar:
+        return LT.apply(self, b)
+
+    def __gt__(self, b: ScalarLike) -> Scalar:
+        return LT.apply(b, self)
+
+    def __sub__(self, b: ScalarLike) -> Scalar:
+        return Add.apply(self, Neg.apply(b))
+
+    def __neg__(self) -> Scalar:
+        return Neg.apply(self)
+
+    def __add__(self, b: ScalarLike) -> Scalar:
+        return Add.apply(b, self)
+
+    def log(self) -> Scalar:
+        """Applies the natural logarithm function to this scalar. This allows the Scalar class to have a log method for the user without needing to call the Log class.
+
+        Args:
+        ----
+            None: The function does not take any arguments.
+
+        Returns:
+        -------
+            A new Scalar object representing the result of applying the natural logarithm function to this scalar.
+
+        """
+        return Log.apply(self)
+
+    def exp(self) -> Scalar:
+        """Applies the exponential function to this scalar. This allows the Scalar class to have a exp method for the user without needing to call the Exp class.
+
+        Args:
+        ----
+            None: The function does not take any arguments.
+
+        Returns:
+        -------
+            A new Scalar object representing the result of applying the exponential function to this scalar.
+
+        """
+        return Exp.apply(self)
+
+    def sigmoid(self) -> Scalar:
+        """Applies the sigmoid function to this scalar. This allows the Scalar class to have a sigmoid method for the user without needing to call the Sigmoid class.
+
+        Args:
+        ----
+            None: The function does not take any arguments.
+
+        Returns:
+        -------
+            A new Scalar object representing the result of applying the sigmoid function to this scalar.
+
+        """
+        return Sigmoid.apply(self)
+
+    def relu(self) -> Scalar:
+        """Applies the ReLU (Rectified Linear Unit) activation function to this scalar. This allows the Scalar class to have a relu method for the user without needing to call the ReLU class.
+
+        Args:
+        ----
+            None: The function does not take any arguments.
+
+        Returns:
+        -------
+            A new Scalar object representing the result of applying the ReLU function to this scalar.
+
+        """
+        return ReLU.apply(self)
+
+    def __eq__(self, b: ScalarLike) -> Scalar:
+        return EQ.apply(self, b)
 
 
 def derivative_check(f: Any, *scalars: Scalar) -> None:
     """Checks that autodiff works on a python function.
     Asserts False if derivative is incorrect.
 
-    Parameters
-    ----------
-        f : function from n-scalars to 1-scalar.
-        *scalars  : n input scalar values.
+    Args:
+    ----
+        f: function from n-scalars to 1-scalar.
+        *scalars: n input scalar values.
+
+    Returns:
+    -------
+        None. Should write to its results to the derivative values of each leaf through `accumulate_derivative`.
 
     """
     out = f(*scalars)

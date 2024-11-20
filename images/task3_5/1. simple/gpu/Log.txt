@@ -1,0 +1,132 @@
+/usr/local/lib/python3.12/dist-packages/numba/cuda/dispatcher.py:536: NumbaPerformanceWarning: Grid size 1 will likely result in GPU under-utilization due to low occupancy.
+  warn(NumbaPerformanceWarning(msg))
+/usr/local/lib/python3.12/dist-packages/numba/cuda/cudadrv/devicearray.py:888: NumbaPerformanceWarning: Host array used in CUDA kernel will incur copy overhead to/from device.
+  warn(NumbaPerformanceWarning(msg))
+/usr/local/lib/python3.12/dist-packages/numba/cuda/dispatcher.py:536: NumbaPerformanceWarning: Grid size 7 will likely result in GPU under-utilization due to low occupancy.
+  warn(NumbaPerformanceWarning(msg))
+/usr/local/lib/python3.12/dist-packages/numba/cuda/cudadrv/devicearray.py:888: NumbaPerformanceWarning: Host array used in CUDA kernel will incur copy overhead to/from device.
+  warn(NumbaPerformanceWarning(msg))
+/usr/local/lib/python3.12/dist-packages/numba/cuda/dispatcher.py:536: NumbaPerformanceWarning: Grid size 4 will likely result in GPU under-utilization due to low occupancy.
+  warn(NumbaPerformanceWarning(msg))
+/usr/local/lib/python3.12/dist-packages/numba/cuda/dispatcher.py:536: NumbaPerformanceWarning: Grid size 1 will likely result in GPU under-utilization due to low occupancy.
+  warn(NumbaPerformanceWarning(msg))
+/usr/local/lib/python3.12/dist-packages/numba/cuda/cudadrv/devicearray.py:888: NumbaPerformanceWarning: Host array used in CUDA kernel will incur copy overhead to/from device.
+  warn(NumbaPerformanceWarning(msg))
+/usr/local/lib/python3.12/dist-packages/numba/cuda/dispatcher.py:536: NumbaPerformanceWarning: Grid size 7 will likely result in GPU under-utilization due to low occupancy.
+  warn(NumbaPerformanceWarning(msg))
+/usr/local/lib/python3.12/dist-packages/numba/cuda/dispatcher.py:536: NumbaPerformanceWarning: Grid size 4 will likely result in GPU under-utilization due to low occupancy.
+  warn(NumbaPerformanceWarning(msg))
+/usr/local/lib/python3.12/dist-packages/numba/cuda/cudadrv/devicearray.py:888: NumbaPerformanceWarning: Host array used in CUDA kernel will incur copy overhead to/from device.
+  warn(NumbaPerformanceWarning(msg))
+/usr/local/lib/python3.12/dist-packages/numba/cuda/dispatcher.py:536: NumbaPerformanceWarning: Grid size 32 will likely result in GPU under-utilization due to low occupancy.
+  warn(NumbaPerformanceWarning(msg))
+/usr/local/lib/python3.12/dist-packages/numba/cuda/cudadrv/devicearray.py:888: NumbaPerformanceWarning: Host array used in CUDA kernel will incur copy overhead to/from device.
+  warn(NumbaPerformanceWarning(msg))
+/usr/local/lib/python3.12/dist-packages/numba/cuda/dispatcher.py:536: NumbaPerformanceWarning: Grid size 32 will likely result in GPU under-utilization due to low occupancy.
+  warn(NumbaPerformanceWarning(msg))
+/usr/local/lib/python3.12/dist-packages/numba/cuda/dispatcher.py:536: NumbaPerformanceWarning: Grid size 4 will likely result in GPU under-utilization due to low occupancy.
+  warn(NumbaPerformanceWarning(msg))
+/usr/local/lib/python3.12/dist-packages/numba/cuda/dispatcher.py:536: NumbaPerformanceWarning: Grid size 1 will likely result in GPU under-utilization due to low occupancy.
+  warn(NumbaPerformanceWarning(msg))
+/usr/local/lib/python3.12/dist-packages/numba/cuda/cudadrv/devicearray.py:888: NumbaPerformanceWarning: Host array used in CUDA kernel will incur copy overhead to/from device.
+  warn(NumbaPerformanceWarning(msg))
+/usr/local/lib/python3.12/dist-packages/numba/cuda/dispatcher.py:536: NumbaPerformanceWarning: Grid size 1 will likely result in GPU under-utilization due to low occupancy.
+  warn(NumbaPerformanceWarning(msg))
+/usr/local/lib/python3.12/dist-packages/numba/cuda/cudadrv/devicearray.py:888: NumbaPerformanceWarning: Host array used in CUDA kernel will incur copy overhead to/from device.
+  warn(NumbaPerformanceWarning(msg))
+/usr/local/lib/python3.12/dist-packages/numba/cuda/dispatcher.py:536: NumbaPerformanceWarning: Grid size 1 will likely result in GPU under-utilization due to low occupancy.
+  warn(NumbaPerformanceWarning(msg))
+/usr/local/lib/python3.12/dist-packages/numba/cuda/cudadrv/devicearray.py:888: NumbaPerformanceWarning: Host array used in CUDA kernel will incur copy overhead to/from device.
+  warn(NumbaPerformanceWarning(msg))
+/usr/local/lib/python3.12/dist-packages/numba/cuda/dispatcher.py:536: NumbaPerformanceWarning: Grid size 1 will likely result in GPU under-utilization due to low occupancy.
+  warn(NumbaPerformanceWarning(msg))
+/usr/local/lib/python3.12/dist-packages/numba/cuda/cudadrv/devicearray.py:888: NumbaPerformanceWarning: Host array used in CUDA kernel will incur copy overhead to/from device.
+  warn(NumbaPerformanceWarning(msg))
+/usr/local/lib/python3.12/dist-packages/numba/cuda/dispatcher.py:536: NumbaPerformanceWarning: Grid size 1 will likely result in GPU under-utilization due to low occupancy.
+  warn(NumbaPerformanceWarning(msg))
+/usr/local/lib/python3.12/dist-packages/numba/cuda/cudadrv/devicearray.py:888: NumbaPerformanceWarning: Host array used in CUDA kernel will incur copy overhead to/from device.
+  warn(NumbaPerformanceWarning(msg))
+/usr/local/lib/python3.12/dist-packages/numba/cuda/dispatcher.py:536: NumbaPerformanceWarning: Grid size 1 will likely result in GPU under-utilization due to low occupancy.
+  warn(NumbaPerformanceWarning(msg))
+/usr/local/lib/python3.12/dist-packages/numba/cuda/cudadrv/devicearray.py:888: NumbaPerformanceWarning: Host array used in CUDA kernel will incur copy overhead to/from device.
+  warn(NumbaPerformanceWarning(msg))
+/usr/local/lib/python3.12/dist-packages/numba/cuda/dispatcher.py:536: NumbaPerformanceWarning: Grid size 4 will likely result in GPU under-utilization due to low occupancy.
+  warn(NumbaPerformanceWarning(msg))
+/usr/local/lib/python3.12/dist-packages/numba/cuda/dispatcher.py:536: NumbaPerformanceWarning: Grid size 32 will likely result in GPU under-utilization due to low occupancy.
+  warn(NumbaPerformanceWarning(msg))
+/usr/local/lib/python3.12/dist-packages/numba/cuda/cudadrv/devicearray.py:888: NumbaPerformanceWarning: Host array used in CUDA kernel will incur copy overhead to/from device.
+  warn(NumbaPerformanceWarning(msg))
+/usr/local/lib/python3.12/dist-packages/numba/cuda/dispatcher.py:536: NumbaPerformanceWarning: Grid size 100 will likely result in GPU under-utilization due to low occupancy.
+  warn(NumbaPerformanceWarning(msg))
+/usr/local/lib/python3.12/dist-packages/numba/cuda/dispatcher.py:536: NumbaPerformanceWarning: Grid size 16 will likely result in GPU under-utilization due to low occupancy.
+  warn(NumbaPerformanceWarning(msg))
+/usr/local/lib/python3.12/dist-packages/numba/cuda/dispatcher.py:536: NumbaPerformanceWarning: Grid size 7 will likely result in GPU under-utilization due to low occupancy.
+  warn(NumbaPerformanceWarning(msg))
+/usr/local/lib/python3.12/dist-packages/numba/cuda/dispatcher.py:536: NumbaPerformanceWarning: Grid size 4 will likely result in GPU under-utilization due to low occupancy.
+  warn(NumbaPerformanceWarning(msg))
+/usr/local/lib/python3.12/dist-packages/numba/cuda/dispatcher.py:536: NumbaPerformanceWarning: Grid size 8 will likely result in GPU under-utilization due to low occupancy.
+  warn(NumbaPerformanceWarning(msg))
+/usr/local/lib/python3.12/dist-packages/numba/cuda/dispatcher.py:536: NumbaPerformanceWarning: Grid size 2 will likely result in GPU under-utilization due to low occupancy.
+  warn(NumbaPerformanceWarning(msg))
+/usr/local/lib/python3.12/dist-packages/numba/cuda/cudadrv/devicearray.py:888: NumbaPerformanceWarning: Host array used in CUDA kernel will incur copy overhead to/from device.
+  warn(NumbaPerformanceWarning(msg))
+/usr/local/lib/python3.12/dist-packages/numba/cuda/dispatcher.py:536: NumbaPerformanceWarning: Grid size 2 will likely result in GPU under-utilization due to low occupancy.
+  warn(NumbaPerformanceWarning(msg))
+/usr/local/lib/python3.12/dist-packages/numba/cuda/cudadrv/devicearray.py:888: NumbaPerformanceWarning: Host array used in CUDA kernel will incur copy overhead to/from device.
+  warn(NumbaPerformanceWarning(msg))
+/usr/local/lib/python3.12/dist-packages/numba/cuda/dispatcher.py:536: NumbaPerformanceWarning: Grid size 2 will likely result in GPU under-utilization due to low occupancy.
+  warn(NumbaPerformanceWarning(msg))
+Epoch  0  loss  4.6654938871948355 correct 36
+Epoch  10  loss  1.674902513787757 correct 47
+Epoch  20  loss  0.1810884002220403 correct 50
+Epoch  30  loss  1.4058473947962085 correct 50
+Epoch  40  loss  0.38120674415148204 correct 47
+Epoch  50  loss  0.23493432987547308 correct 50
+Epoch  60  loss  0.12105216818362133 correct 50
+Epoch  70  loss  0.3592741880051916 correct 49
+Epoch  80  loss  0.5577781959289381 correct 50
+Epoch  90  loss  1.050204253100938 correct 50
+Epoch  100  loss  0.4085038386234219 correct 50
+Epoch  110  loss  0.43276581206097664 correct 50
+Epoch  120  loss  0.030628321218879893 correct 50
+Epoch  130  loss  0.0206182327136636 correct 50
+Epoch  140  loss  0.11066356136791064 correct 50
+Epoch  150  loss  0.21893727776157373 correct 50
+Epoch  160  loss  0.13058431891640648 correct 50
+Epoch  170  loss  0.09045138427690663 correct 50
+Epoch  180  loss  0.09873688959104797 correct 50
+Epoch  190  loss  0.22712419663202585 correct 50
+Epoch  200  loss  0.1788859338671556 correct 50
+Epoch  210  loss  0.1292295384537704 correct 50
+Epoch  220  loss  0.003604703857580745 correct 50
+Epoch  230  loss  0.16878754654668088 correct 50
+Epoch  240  loss  0.21182021197921194 correct 50
+Epoch  250  loss  0.3290085972522911 correct 50
+Epoch  260  loss  0.11484384964662744 correct 50
+Epoch  270  loss  0.0003600811349889055 correct 50
+Epoch  280  loss  0.04294582987299248 correct 50
+Epoch  290  loss  0.03531995719082791 correct 50
+Epoch  300  loss  0.04556083316897192 correct 50
+Epoch  310  loss  0.12401938115924777 correct 50
+Epoch  320  loss  0.0003475691559147917 correct 50
+Epoch  330  loss  0.074572511064606 correct 50
+Epoch  340  loss  0.006151793735319139 correct 50
+Epoch  350  loss  0.01939479285074038 correct 50
+Epoch  360  loss  9.107840732339743e-05 correct 50
+Epoch  370  loss  0.02125473249380904 correct 50
+Epoch  380  loss  0.1376800090267279 correct 50
+Epoch  390  loss  0.03499769323721483 correct 50
+Epoch  400  loss  0.01179178676048381 correct 50
+Epoch  410  loss  0.01973186685792328 correct 50
+Epoch  420  loss  0.018091544642520208 correct 50
+Epoch  430  loss  0.0062634492661401715 correct 50
+Epoch  440  loss  0.09963730566927269 correct 50
+Epoch  450  loss  0.008258677886920406 correct 50
+Epoch  460  loss  0.0002887364755850184 correct 50
+Epoch  470  loss  9.310347213468984e-05 correct 50
+Epoch  480  loss  0.07774002141897965 correct 50
+Epoch  490  loss  0.014184310672249905 correct 50
+
+real	14m6.195s
+user	13m55.857s
+sys	0m5.275s

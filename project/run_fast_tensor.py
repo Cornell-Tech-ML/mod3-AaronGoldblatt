@@ -29,8 +29,13 @@ class Network(minitorch.Module):
         self.layer3 = Linear(hidden, 1, backend)
 
     def forward(self, x):
-        # TODO: Implement for Task 3.5.
-        raise NotImplementedError("Need to implement for Task 3.5")
+        # Implemented for Task 3.5.
+        # First hidden layer: Apply linear transformation followed by ReLU activation
+        h = self.layer1.forward(x).relu()
+        # Second hidden layer: Apply linear transformation followed by ReLU activation
+        h = self.layer2.forward(h).relu()
+        # Output layer: Apply linear transformation followed by sigmoid activation, which squashes the output between 0 and 1, making it suitable for binary classification
+        return self.layer3.forward(h).sigmoid()
 
 
 class Linear(minitorch.Module):
@@ -43,8 +48,13 @@ class Linear(minitorch.Module):
         self.out_size = out_size
 
     def forward(self, x):
-        # TODO: Implement for Task 3.5.
-        raise NotImplementedError("Need to implement for Task 3.5")
+        # Implemented for Task 3.5.
+        # Matrix multiplication of features x with weights
+        weighted_features = x @ self.weights.value
+        # Reshape bias for broadcasting
+        bias_broadcast = self.bias.value.view(1, self.out_size)
+        # Add bias to the output of the matrix multiplication
+        return weighted_features + bias_broadcast
 
 
 class FastTrain:
@@ -116,7 +126,7 @@ if __name__ == "__main__":
     if args.DATASET == "xor":
         data = minitorch.datasets["Xor"](PTS)
     elif args.DATASET == "simple":
-        data = minitorch.datasets["Simple"].simple(PTS)
+        data = minitorch.datasets["Simple"](PTS)
     elif args.DATASET == "split":
         data = minitorch.datasets["Split"](PTS)
 

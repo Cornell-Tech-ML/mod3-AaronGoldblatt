@@ -37,14 +37,21 @@ def index_to_position(index: Index, strides: Strides) -> int:
     storage based on strides.
 
     Args:
+    ----
         index : index tuple of ints
         strides : tensor strides
 
     Returns:
+    -------
         Position in storage
 
     """
-    raise NotImplementedError("Need to include this file from past assignment.")
+    # Calculate the position by summing the product of each index and its corresponding stride
+    # Changed to use a for loop to make it compatible with numba's JIT compilation
+    position = 0
+    for dim_index, stride in zip(index, strides):
+        position += dim_index * stride
+    return position
 
 
 def to_index(ordinal: int, shape: Shape, out_index: OutIndex) -> None:
@@ -54,12 +61,21 @@ def to_index(ordinal: int, shape: Shape, out_index: OutIndex) -> None:
     may not be the inverse of `index_to_position`.
 
     Args:
+    ----
         ordinal: ordinal position to convert.
         shape : tensor shape.
         out_index : return index corresponding to position.
 
     """
-    raise NotImplementedError("Need to include this file from past assignment.")
+    # Initialize a temporary, explicitly int, variable to hold the ordinal value for compatibility with numba's JIT compilation
+    temp_ordinal: int = int(ordinal)
+    # Iterate over the shape in reverse order because the last dimension changes the fastest
+    for i in range(len(shape) - 1, -1, -1):
+        shape_i: int = shape[i]
+        # Calculate the index for the current dimension
+        out_index[i] = int(temp_ordinal % shape_i)
+        # Update the ordinal for the next dimension
+        temp_ordinal = temp_ordinal // shape_i
 
 
 def broadcast_index(
@@ -72,33 +88,68 @@ def broadcast_index(
     removed.
 
     Args:
+    ----
         big_index : multidimensional index of bigger tensor
         big_shape : tensor shape of bigger tensor
         shape : tensor shape of smaller tensor
         out_index : multidimensional index of smaller tensor
 
     Returns:
+    -------
         None
 
     """
-    raise NotImplementedError("Need to include this file from past assignment.")
+    for i in range(len(shape)):
+        # Calculate the corresponding index in the big tensor based on the difference in dimensions between big_shape and shape, accounting for any extra dimensions in big_shape
+        big_tensor_i = i + len(big_shape) - len(shape)
+        # If the current dimension of shape is greater than 1, use the corresponding index from big_index, otherwise set the index to 0 because this dimension will be broadcasted (repeated along the axis)
+        out_index[i] = big_index[big_tensor_i] if shape[i] > 1 else 0
 
 
 def shape_broadcast(shape1: UserShape, shape2: UserShape) -> UserShape:
     """Broadcast two shapes to create a new union shape.
 
     Args:
+    ----
         shape1 : first shape
         shape2 : second shape
 
     Returns:
+    -------
         broadcasted shape
 
     Raises:
+    ------
         IndexingError : if cannot broadcast
 
     """
-    raise NotImplementedError("Need to include this file from past assignment.")
+    # Initialize the result shape with the length of the larger shape
+    result_shape_len = max(len(shape1), len(shape2))
+    # Pad the smaller shape with ones to match the length of the larger shape
+    shape1 = (1,) * (result_shape_len - len(shape1)) + tuple(shape1)
+    shape2 = (1,) * (result_shape_len - len(shape2)) + tuple(shape2)
+    # Initialize an empty list to hold the result shape
+    result_shape = []
+    # Iterate over the dimensions of both shapes from left to right
+    for i in range(result_shape_len):
+        # Get the current dimension of each shape
+        dim1 = shape1[i]
+        dim2 = shape2[i]
+        # Check broadcasting rules:
+        # - If both dimensions are equal, use that dimension.
+        # - If one dimension is 1, the other dimension is used.
+        # - If neither of the above is true, broadcasting is not possible.
+        if dim1 == dim2:
+            result_shape.append(dim1)
+        elif dim1 == 1:
+            result_shape.append(dim2)  # Broadcast dim1 across dim2
+        elif dim2 == 1:
+            result_shape.append(dim1)  # Broadcast dim2 across dim1
+        else:
+            # Raise error if dimensions cannot be broadcasted
+            raise IndexingError(f"Cannot broadcast shapes {shape1} and {shape2}")
+    # Return the result shape as a tuple
+    return tuple(result_shape)
 
 
 def strides_from_shape(shape: UserShape) -> UserStrides:
@@ -153,7 +204,8 @@ class TensorData:
     def is_contiguous(self) -> bool:
         """Check that the layout is contiguous, i.e. outer dimensions have bigger strides than inner dimensions.
 
-        Returns:
+        Returns
+        -------
             bool : True if contiguous
 
         """
@@ -166,9 +218,32 @@ class TensorData:
 
     @staticmethod
     def shape_broadcast(shape_a: UserShape, shape_b: UserShape) -> UserShape:
+        """Broadcasts two shapes to create a new union shape. This is used to ensure that the shapes of two tensors are compatible for broadcasting operations.
+
+        Args:
+        ----
+            shape_a : first shape
+            shape_b : second shape
+
+        Returns:
+        -------
+            broadcasted shape
+
+        """
         return shape_broadcast(shape_a, shape_b)
 
     def index(self, index: Union[int, UserIndex]) -> int:
+        """Converts a given index into a position in the storage.
+
+        Args:
+        ----
+            index : index to convert
+
+        Returns:
+        -------
+            position in storage
+
+        """
         if isinstance(index, int):
             aindex: Index = array([index])
         else:  # if isinstance(index, tuple):
@@ -192,6 +267,17 @@ class TensorData:
         return index_to_position(array(index), self._strides)
 
     def indices(self) -> Iterable[UserIndex]:
+        """Generates all possible indices for the tensor. This is used to iterate over all elements of the tensor.
+
+        Args:
+        ----
+            None
+
+        Returns:
+        -------
+            Iterable[UserIndex]: An iterable of all possible indices for the tensor.
+
+        """
         lshape: Shape = array(self.shape)
         out_index: Index = array(self.shape)
         for i in range(self.size):
@@ -203,10 +289,33 @@ class TensorData:
         return tuple((random.randint(0, s - 1) for s in self.shape))
 
     def get(self, key: UserIndex) -> float:
+        """Gets the value at the given index in the tensor.
+
+        Args:
+        ----
+            key : index to get the value at
+
+        Returns:
+        -------
+            value at the given index
+
+        """
         x: float = self._storage[self.index(key)]
         return x
 
     def set(self, key: UserIndex, val: float) -> None:
+        """Sets the value at the given index in the tensor.
+
+        Args:
+        ----
+            key : index to set the value at
+            val : value to set
+
+        Returns:
+        -------
+            None
+
+        """
         self._storage[self.index(key)] = val
 
     def tuple(self) -> Tuple[Storage, Shape, Strides]:
@@ -217,9 +326,11 @@ class TensorData:
         """Permute the dimensions of the tensor.
 
         Args:
+        ----
             *order: a permutation of the dimensions
 
         Returns:
+        -------
             New `TensorData` with the same storage and a new dimension order.
 
         """
@@ -227,7 +338,12 @@ class TensorData:
             range(len(self.shape))
         ), f"Must give a position to each dimension. Shape: {self.shape} Order: {order}"
 
-        raise NotImplementedError("Need to include this file from past assignment.")
+        # Create a new strides array based on the given order
+        new_strides = tuple(self._strides[i] for i in order)
+        # Return a new TensorData object with the same storage, but with the new shape and strides
+        return TensorData(
+            self._storage, tuple(self.shape[i] for i in order), new_strides
+        )
 
     def to_string(self) -> str:
         """Convert to string"""

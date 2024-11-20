@@ -11,6 +11,40 @@ def RParam(*shape):
     r = 2 * (minitorch.rand(shape) - 0.5)
     return minitorch.Parameter(r)
 
+# Task 2.5
+class Network(minitorch.Module):
+    def __init__(self, hidden_layers):
+        super().__init__()
+        # 2 input features for the input layer, a defined number of hidden layers outputted and passed until the output layer, and 1 output for the output layer
+        self.layer1 = Linear(2, hidden_layers)
+        self.layer2 = Linear(hidden_layers, hidden_layers)
+        self.layer3 = Linear(hidden_layers, 1)
+
+    def forward(self, x):
+        # Pass the input through the first layer, apply the relu activation function, then pass the result through the second layer, apply the relu activation function, then pass the result through the third layer, apply the sigmoid activation function
+        h = self.layer1.forward(x).relu()
+        h = self.layer2.forward(h).relu()
+        return self.layer3.forward(h).sigmoid()
+
+
+class Linear(minitorch.Module):
+    def __init__(self, in_size, out_size):
+        super().__init__()
+        # Initialize the weights and bias with random values between -1 and 1
+        self.weights = RParam(in_size, out_size)
+        self.bias = RParam(out_size)
+        self.out_size = out_size
+
+    def forward(self, x):
+        # Reshape the input tensor to have a new dimension of size 1 at the end
+        x = x.view(*x.shape, 1)
+        # Reshape the weights tensor to have a new dimension of size 1 at the beginning
+        w = self.weights.value.view(1, *self.weights.value.shape)
+        # Reshape the bias tensor to have a new dimension of size 1 at the beginning and the output size at the end
+        bias = self.bias.value.view(1, self.out_size)
+        # Perform the linear transformation and add the bias
+        return (x * w).sum(1).view(x.shape[0], self.out_size) + bias
+
 
 def default_log_fn(epoch, total_loss, correct, losses):
     print("Epoch ", epoch, " loss ", total_loss, "correct", correct)
